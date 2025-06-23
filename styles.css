@@ -2,29 +2,28 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: #f5f5f5;
 }
 
 /* Navigation Styles */
 nav {
-    background-color: #2c3e50;
+    background-color: #1a73e8;
     padding: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .nav-menu {
     list-style: none;
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 2rem;
 }
 
 .nav-menu li a {
@@ -36,29 +35,27 @@ nav {
 }
 
 .nav-menu li a:hover {
-    background-color: #34495e;
+    background-color: rgba(255,255,255,0.1);
 }
 
 /* Main Content Styles */
 .container {
     max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 2rem auto;
+    padding: 0 1rem;
     flex: 1;
 }
 
 .section {
     display: none;
-    animation: fadeIn 0.5s;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .section.active {
     display: block;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }
 
 /* Home Section */
@@ -80,44 +77,36 @@ nav {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 th, td {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
+    padding: 1rem;
     text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 th {
-    background-color: #2c3e50;
-    color: white;
+    background-color: #f8f9fa;
+    color: #333;
 }
 
-.action-buttons button {
-    padding: 0.5rem;
-    margin: 0.2rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .edit-btn {
-    background-color: #3498db;
-    color: white;
+    background-color: #28a745;
 }
 
 .delete-btn {
-    background-color: #e74c3c;
-    color: white;
+    background-color: #dc3545;
 }
 
 /* Form Styles */
 .form-container {
-    background-color: #f9f9f9;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .form-group {
@@ -126,29 +115,31 @@ th {
 
 label {
     display: block;
-    margin-bottom: 0.3rem;
-    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    color: #333;
 }
 
 input, select {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 1rem;
 }
 
-button[type="submit"] {
-    background-color: #2c3e50;
+button {
+    background-color: #1a73e8;
     color: white;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    width: 100%;
+    font-size: 1rem;
+    transition: background-color 0.3s;
 }
 
-button[type="submit"]:hover {
-    background-color: #34495e;
+button:hover {
+    background-color: #1557b0;
 }
 
 /* About Section */
@@ -168,11 +159,11 @@ button[type="submit"]:hover {
 
 /* Footer Styles */
 footer {
-    background-color: #2c3e50;
+    background-color: #1a73e8;
     color: white;
     text-align: center;
     padding: 1rem;
-    margin-top: auto;
+    margin-top: 2rem;
 }
 
 /* Mobile Responsive */
@@ -181,19 +172,12 @@ footer {
         flex-direction: column;
         align-items: center;
     }
-
-    .nav-menu li {
-        width: 100%;
-        text-align: center;
+    
+    .container {
+        margin: 1rem auto;
     }
-
-    th, td {
-        padding: 0.5rem;
-        font-size: 0.9rem;
-    }
-
-    .action-buttons button {
-        padding: 0.3rem;
-        font-size: 0.8rem;
+    
+    .section {
+        padding: 1rem;
     }
 }
