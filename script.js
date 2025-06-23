@@ -185,4 +185,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('mid-section').classList.contains('active')) {
         loadStudents();
     }
+
+    // Hamburger menu logic
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+
+    navToggle.addEventListener('click', function() {
+        navMenu.classList.toggle('open');
+        navToggle.classList.toggle('open');
+    });
+
+    // Close menu when link is clicked (on mobile)
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+            navMenu.classList.remove('open');
+            navToggle.classList.remove('open');
+        });
+    });
 });
