@@ -1,148 +1,188 @@
-// Navigation (letakkan di paling atas agar selalu berjalan)
-const navLinks = document.querySelectorAll('.nav-menu a');
-const sections = document.querySelectorAll('.section');
-
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = link.getAttribute('data-section');
-        sections.forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById(targetId).classList.add('active');
-    });
-});
-
 // Initialize Supabase client
-const supabase = supabase.createClient(
-    'https://uyvwcygovdqllqndixpj.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
-);
+const supabaseUrl = 'https://uyvwcygovdqllqndixpj.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
 
-// CRUD Operations
-const studentForm = document.getElementById('studentForm');
-const studentTable = document.getElementById('studentTable').querySelector('tbody');
+// Navigation
+document.addEventListener('DOMContentLoaded', function() {
+    // Inisialisasi Supabase dengan benar
+    const supabase = window.supabase.createClient(
+        'https://uyvwcygovdqllqndixpj.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
+    );
 
-async function loadStudents() {
-    try {
-        const { data, error } = await supabase
-            .from('students')
-            .select('*')
-            .order('created_at', { ascending: false });
+    // Navigation handling
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
 
-        if (error) throw error;
-
-        studentTable.innerHTML = '';
-        
-        if (!data || data.length === 0) {
-            studentTable.innerHTML = '<tr><td colspan="4">Tidak ada data mahasiswa</td></tr>';
-            return;
-        }
-
-        data.forEach(student => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${student.nim}</td>
-                <td>${student.nama}</td>
-                <td>${student.jurusan}</td>
-                <td>
-                    <button onclick="editStudent(${student.id})" class="edit-btn">Edit</button>
-                    <button onclick="deleteStudent(${student.id})" class="delete-btn">Hapus</button>
-                </td>
-            `;
-            studentTable.appendChild(row);
+    // Function untuk menampilkan section
+    function showSection(targetId) {
+        sections.forEach(section => {
+            if (section.id === targetId) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
+            }
         });
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Gagal memuat data mahasiswa');
     }
-}
 
-if (studentForm) {
-    studentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // Event listener untuk navigasi
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            showSection(targetId);
+            
+            // Load students hanya jika membuka section data mahasiswa
+            if (targetId === 'mid-section') {
+                loadStudents();
+            }
+        });
+    });
+
+    // Fungsi untuk memuat data mahasiswa
+    async function loadStudents() {
+        const tbody = document.querySelector('#studentTable tbody');
         
-        const id = document.getElementById('editId').value;
+        try {
+            const { data, error } = await supabase
+                .from('students')
+                .select('*');
+
+            if (error) {
+                console.error('Error fetching data:', error);
+                throw error;
+            }
+
+            // Clear table
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Tidak ada data mahasiswa</td></tr>';
+                return;
+            }
+
+            // Populate table
+            data.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.nim}</td>
+                    <td>${student.nama}</td>
+                    <td>${student.jurusan}</td>
+                    <td>${student.angkatan}</td>
+                    <td>
+                        <button onclick="editStudent('${student.id}')" class="edit-btn">Edit</button>
+                        <button onclick="deleteStudent('${student.id}')" class="delete-btn">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Gagal memuat data</td></tr>';
+        }
+    }
+
+    // Form handling
+    const studentForm = document.getElementById('studentForm');
+    
+    studentForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const editId = document.getElementById('editId').value;
+        
         const studentData = {
             nim: document.getElementById('nim').value,
             nama: document.getElementById('nama').value,
-            jurusan: document.getElementById('jurusan').value
+            jurusan: document.getElementById('jurusan').value,
+            angkatan: parseInt(document.getElementById('angkatan').value)
         };
 
         try {
-            let error;
-            if (id) {
-                // Update
-                const { error: updateError } = await supabase
+            let response;
+            
+            if (editId) {
+                // Update existing data
+                response = await supabase
                     .from('students')
                     .update(studentData)
-                    .eq('id', id);
-                error = updateError;
+                    .eq('id', editId);
             } else {
-                // Insert
-                const { error: insertError } = await supabase
+                // Insert new data
+                response = await supabase
                     .from('students')
                     .insert([studentData]);
-                error = insertError;
             }
 
-            if (error) throw error;
+            if (response.error) throw response.error;
 
+            // Reset form
             studentForm.reset();
             document.getElementById('editId').value = '';
-            document.getElementById('submitBtn').textContent = 'Simpan';
-            loadStudents();
+            document.querySelector('button[type="submit"]').textContent = 'Simpan';
+            
+            // Reload data
+            await loadStudents();
+            
+            alert(editId ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!');
         } catch (error) {
             console.error('Error:', error);
-            alert('Gagal menyimpan data mahasiswa');
+            alert('Gagal menyimpan data: ' + error.message);
         }
     });
-}
 
-window.editStudent = async function(id) {
-    try {
-        const { data, error } = await supabase
-            .from('students')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-        if (error) throw error;
-
-        document.getElementById('editId').value = data.id;
-        document.getElementById('nim').value = data.nim;
-        document.getElementById('nama').value = data.nama;
-        document.getElementById('jurusan').value = data.jurusan;
-        document.getElementById('submitBtn').textContent = 'Update';
-        
-        // Switch to form section
-        sections.forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById('mid-section').classList.add('active');
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Gagal memuat data mahasiswa untuk diedit');
-    }
-}
-
-window.deleteStudent = async function(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+    // Edit function
+    window.editStudent = async function(id) {
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('students')
-                .delete()
-                .eq('id', id);
+                .select('*')
+                .eq('id', id)
+                .single();
 
             if (error) throw error;
 
-            loadStudents();
+            if (data) {
+                // Fill form with data
+                document.getElementById('editId').value = data.id;
+                document.getElementById('nim').value = data.nim;
+                document.getElementById('nama').value = data.nama;
+                document.getElementById('jurusan').value = data.jurusan;
+                document.getElementById('angkatan').value = data.angkatan;
+                
+                // Change button text
+                document.querySelector('button[type="submit"]').textContent = 'Update';
+                
+                // Scroll to form
+                document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+            }
         } catch (error) {
             console.error('Error:', error);
-            alert('Gagal menghapus data mahasiswa');
+            alert('Gagal memuat data untuk edit: ' + error.message);
         }
-    }
-}
+    };
 
-// Initial load
-loadStudents();
+    // Delete function
+    window.deleteStudent = async function(id) {
+        if (confirm('Yakin ingin menghapus data ini?')) {
+            try {
+                const { error } = await supabase
+                    .from('students')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                await loadStudents();
+                alert('Data berhasil dihapus!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal menghapus data: ' + error.message);
+            }
+        }
+    };
+
+    // Initial load if on data section
+    if (document.getElementById('mid-section').classList.contains('active')) {
+        loadStudents();
+    }
+});
