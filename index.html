@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management System</title>
+    <title>Sistem Manajemen Mahasiswa</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav>
         <ul class="nav-menu">
-            <li><a href="#" data-section="home">Home</a></li>
-            <li><a href="#" data-section="mid-section">Data Mahasiswa</a></li>
-            <li><a href="#" data-section="about">About</a></li>
+            <li><a href="#home" class="nav-link" data-target="home">Home</a></li>
+            <li><a href="#data" class="nav-link" data-target="mid-section">Data Mahasiswa</a></li>
+            <li><a href="#about" class="nav-link" data-target="about">About</a></li>
         </ul>
     </nav>
 
     <div class="container">
         <section id="home" class="section active">
-            <h1>Welcome to Student Management System</h1>
-            <p>Sistem manajemen data mahasiswa sederhana dengan penyimpanan di Supabase.</p>
+            <h1>Selamat Datang di Sistem Manajemen Mahasiswa</h1>
+            <p>Website ini dirancang untuk mengelola data mahasiswa dengan mudah.</p>
         </section>
 
         <section id="mid-section" class="section">
@@ -39,9 +39,13 @@
                         <select id="jurusan" required>
                             <option value="">Pilih Jurusan</option>
                             <option value="Teknik Informatika">Teknik Informatika</option>
-                            <option value="Sistem Informasi">Sistem Informasi</option>
                             <option value="Teknik Komputer">Teknik Komputer</option>
+                            <option value="Teknologi Rekayasa Komputer">Teknologi Rekayasa Komputer</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="angkatan">Angkatan</label>
+                        <input type="number" id="angkatan" required>
                     </div>
                     <button type="submit" id="submitBtn">Simpan</button>
                 </form>
@@ -53,6 +57,7 @@
                             <th>NIM</th>
                             <th>Nama</th>
                             <th>Jurusan</th>
+                            <th>Angkatan</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -63,15 +68,15 @@
 
         <section id="about" class="section">
             <div class="about-content">
-                <h2>About System</h2>
-                <p>Student Management System v1.0</p>
+                <h2>Tentang Sistem</h2>
+                <p>Sistem Manajemen Mahasiswa v1.0</p>
                 <p>Dibuat dengan HTML, CSS, JavaScript dan Supabase</p>
             </div>
         </section>
     </div>
 
     <footer>
-        <p>&copy; 2024 Student Management System</p>
+        <p>© 2024 Sistem Manajemen Mahasiswa</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
