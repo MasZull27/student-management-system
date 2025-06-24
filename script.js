@@ -5,6 +5,37 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
 
 // Navigation and UI Management
 document.addEventListener('DOMContentLoaded', function() {
+    // Theme Toggler
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const themeIcon = themeToggle.querySelector('i');
+
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            body.classList.add('dark-mode');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            body.classList.remove('dark-mode');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    };
+
+    themeToggle.addEventListener('click', () => {
+        const isDarkMode = body.classList.contains('dark-mode');
+        if (isDarkMode) {
+            localStorage.setItem('theme', 'light');
+            applyTheme('light');
+        } else {
+            localStorage.setItem('theme', 'dark');
+            applyTheme('dark');
+        }
+    });
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
     // Check user authentication
     function checkAuth() {
         const userData = localStorage.getItem('user');
