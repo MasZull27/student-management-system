@@ -3,15 +3,76 @@ const supabaseUrl = 'https://uyvwcygovdqllqndixpj.supabase.co'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
 
-// Navigation
+// Navigation and UI Management
 document.addEventListener('DOMContentLoaded', function() {
-    // Inisialisasi Supabase dengan benar
-    const supabase = window.supabase.createClient(
-        'https://uyvwcygovdqllqndixpj.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
-    );
+    // Check user authentication
+    function checkAuth() {
+        const userData = localStorage.getItem('user');
+        if (!userData) {
+            // User not logged in, redirect to login page
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        try {
+            const user = JSON.parse(userData);
+            // Display user name in header
+            const userNameElement = document.getElementById('userName');
+            if (userNameElement && user.nama) {
+                userNameElement.textContent = user.nama;
+            }
+            
+            // Display user ID in dropdown
+            const userIDElement = document.getElementById('userID');
+            if (userIDElement && user.userid) {
+                userIDElement.textContent = user.userid;
+            }
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    }
 
-    // Navigation handling
+    // Logout functionality
+    function logout() {
+        if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    }
+
+    // Initialize authentication check
+    checkAuth();
+
+    // Add logout event listener
+    function setLogoutBtnListener() {
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                e.preventDefault();
+                logout();
+            };
+        }
+    }
+
+    // Function untuk memuat data akun pengguna
+    function loadAccountSection() {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                document.getElementById('accountName').textContent = user.nama || '-';
+                document.getElementById('accountUserID').textContent = user.userid || '-';
+            } catch (error) {
+                document.getElementById('accountName').textContent = '-';
+                document.getElementById('accountUserID').textContent = '-';
+            }
+        }
+        setLogoutBtnListener();
+    }
+
+    // Navigation handling with Bootstrap
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.section');
 
@@ -22,6 +83,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 section.classList.add('active');
             } else {
                 section.classList.remove('active');
+            }
+        });
+
+        // Update active nav link
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-target') === targetId) {
+                link.classList.add('active');
             }
         });
     }
@@ -37,17 +106,53 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetId === 'mid-section') {
                 loadStudents();
             }
+            // Load profile data jika membuka section profile
+            if (targetId === 'profile') {
+                loadProfileData();
+            }
+            // Load account data jika membuka section account
+            if (targetId === 'account') {
+                loadAccountSection();
+            }
+
+            // Close mobile menu after navigation
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            if (navbarCollapse.classList.contains('show')) {
+                const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                bsCollapse.hide();
+            }
         });
     });
+
+    // Panggil setLogoutBtnListener saat halaman siap (untuk default section)
+    setLogoutBtnListener();
+
+    // Statistics update function
+    async function updateStatistics() {
+        try {
+            const { data, error } = await supabaseClient.from('mahasiswa').select('*');
+
+            if (error) throw error;
+
+            const totalStudents = data ? data.length : 0;
+            const uniqueProdi = data ? new Set(data.map(m => m.id_prodi)).size : 0;
+
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalJurusan').textContent = uniqueProdi;
+        } catch (error) {
+            console.error('Error updating statistics:', error);
+        }
+    }
 
     // Fungsi untuk memuat data mahasiswa
     async function loadStudents() {
         const tbody = document.querySelector('#studentTable tbody');
         
         try {
-            const { data, error } = await supabase
-                .from('students')
-                .select('*');
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center"><div class="loading"></div> Memuat data...</td></tr>';
+
+            const { data, error } = await supabaseClient.from('mahasiswa').select('*');
 
             if (error) {
                 console.error('Error fetching data:', error);
@@ -58,28 +163,92 @@ document.addEventListener('DOMContentLoaded', function() {
             tbody.innerHTML = '';
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Tidak ada data mahasiswa</td></tr>';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <p>Tidak ada data mahasiswa</p>
+                                <small class="text-muted">Mulai dengan menambahkan data mahasiswa baru</small>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                updateStatistics();
                 return;
             }
 
             // Populate table
-            data.forEach(student => {
+            data.forEach(m => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${student.nim}</td>
-                    <td>${student.nama}</td>
-                    <td>${student.jurusan}</td>
-                    <td>${student.angkatan}</td>
+                    <td>${m.nim}</td>
+                    <td>${m.nama}</td>
+                    <td>${m.tgl_lahir || '-'}</td>
+                    <td>${m.alamat || '-'}</td>
+                    <td>${m.agama || '-'}</td>
+                    <td>${m.kelamin || '-'}</td>
+                    <td>${m.no_hp || '-'}</td>
+                    <td>${m.email || '-'}</td>
+                    <td>${m.id_prodi || '-'}</td>
                     <td>
-                        <button onclick="editStudent('${student.id}')" class="edit-btn">Edit</button>
-                        <button onclick="deleteStudent('${student.id}')" class="delete-btn">Hapus</button>
+                        <div class="action-buttons">
+                            <button onclick="editStudent('${m.nim}')" class="btn btn-edit btn-sm">Edit</button>
+                            <button onclick="deleteStudent('${m.nim}')" class="btn btn-delete btn-sm">Hapus</button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
+
+            // Update statistics
+            updateStatistics();
+
         } catch (error) {
             console.error('Error:', error);
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Gagal memuat data</td></tr>';
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Gagal memuat data
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Fungsi untuk mengambil data prodi dari Supabase dan mengisi dropdown
+    async function loadProdiDropdown() {
+        const prodiSelect = document.getElementById('id_prodi');
+        prodiSelect.innerHTML = '<option value="">Pilih Program Studi</option>';
+        try {
+            const { data, error } = await supabaseClient.from('prodi').select('id_prodi, nama_prodi, id_jurusan');
+            if (error) throw error;
+            data.forEach(prodi => {
+                const option = document.createElement('option');
+                option.value = prodi.id_prodi;
+                option.textContent = prodi.nama_prodi + ' (ID Jurusan: ' + prodi.id_jurusan + ')';
+                prodiSelect.appendChild(option);
+            });
+        } catch (error) {
+            prodiSelect.innerHTML = '<option value="">Gagal memuat prodi</option>';
+        }
+    }
+
+    // Panggil loadProdiDropdown saat halaman siap
+    loadProdiDropdown();
+
+    // Function untuk memuat data profil pengguna
+    function loadProfileData() {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                document.getElementById('edit_userid').value = user.userid || '';
+                document.getElementById('edit_nama').value = user.nama || '';
+            } catch (error) {
+                console.error('Error parsing user data for profile:', error);
+            }
         }
     }
 
@@ -88,13 +257,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     studentForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
+        submitBtn.disabled = true;
+
         const editId = document.getElementById('editId').value;
         
         const studentData = {
             nim: document.getElementById('nim').value,
             nama: document.getElementById('nama').value,
-            jurusan: document.getElementById('jurusan').value,
-            angkatan: parseInt(document.getElementById('angkatan').value)
+            tgl_lahir: document.getElementById('tgl_lahir').value,
+            alamat: document.getElementById('alamat').value,
+            agama: document.getElementById('agama').value,
+            kelamin: document.getElementById('kelamin').value,
+            no_hp: document.getElementById('no_hp').value,
+            email: document.getElementById('email').value,
+            id_prodi: parseInt(document.getElementById('id_prodi').value)
         };
 
         try {
@@ -102,15 +284,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (editId) {
                 // Update existing data
-                response = await supabase
-                    .from('students')
-                    .update(studentData)
-                    .eq('id', editId);
+                response = await supabaseClient.from('mahasiswa').update(studentData).eq('nim', editId);
             } else {
                 // Insert new data
-                response = await supabase
-                    .from('students')
-                    .insert([studentData]);
+                response = await supabaseClient.from('mahasiswa').insert([studentData]);
             }
 
             if (response.error) throw response.error;
@@ -118,65 +295,81 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset form
             studentForm.reset();
             document.getElementById('editId').value = '';
-            document.querySelector('button[type="submit"]').textContent = 'Simpan';
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+            submitBtn.disabled = false;
             
             // Reload data
             await loadStudents();
             
-            alert(editId ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!');
+            // Show success message
+            showAlert(editId ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!', 'success');
+            
         } catch (error) {
             console.error('Error:', error);
-            alert('Gagal menyimpan data: ' + error.message);
+            showAlert('Gagal menyimpan data: ' + error.message, 'danger');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
 
+    // Alert function
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+
     // Edit function
-    window.editStudent = async function(id) {
+    window.editStudent = async function(nim) {
         try {
-            const { data, error } = await supabase
-                .from('students')
-                .select('*')
-                .eq('id', id)
-                .single();
+            const { data, error } = await supabaseClient.from('mahasiswa').select('*').eq('nim', nim).single();
 
             if (error) throw error;
 
             if (data) {
                 // Fill form with data
-                document.getElementById('editId').value = data.id;
+                document.getElementById('editId').value = data.nim;
                 document.getElementById('nim').value = data.nim;
                 document.getElementById('nama').value = data.nama;
-                document.getElementById('jurusan').value = data.jurusan;
-                document.getElementById('angkatan').value = data.angkatan;
                 
                 // Change button text
-                document.querySelector('button[type="submit"]').textContent = 'Update';
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Update';
                 
-                // Scroll to form
-                document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+                showAlert('Data siap untuk diedit', 'info');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Gagal memuat data untuk edit: ' + error.message);
+            showAlert('Gagal memuat data untuk edit: ' + error.message, 'danger');
         }
     };
 
     // Delete function
-    window.deleteStudent = async function(id) {
+    window.deleteStudent = async function(nim) {
         if (confirm('Yakin ingin menghapus data ini?')) {
             try {
-                const { error } = await supabase
-                    .from('students')
-                    .delete()
-                    .eq('id', id);
+                const { error } = await supabaseClient.from('mahasiswa').delete().eq('nim', nim);
 
                 if (error) throw error;
 
                 await loadStudents();
-                alert('Data berhasil dihapus!');
+                showAlert('Data berhasil dihapus!', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                alert('Gagal menghapus data: ' + error.message);
+                showAlert('Gagal menghapus data: ' + error.message, 'danger');
             }
         }
     };
@@ -186,20 +379,123 @@ document.addEventListener('DOMContentLoaded', function() {
         loadStudents();
     }
 
-    // Hamburger menu logic
-    const navToggle = document.getElementById('navToggle');
-    const navMenu = document.getElementById('navMenu');
+    // Initialize statistics
+    updateStatistics();
 
-    navToggle.addEventListener('click', function() {
-        navMenu.classList.toggle('open');
-        navToggle.classList.toggle('open');
+    // Form reset when switching to data section
+    document.querySelector('a[data-target="mid-section"]').addEventListener('click', function() {
+        const form = document.getElementById('studentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Reset form if not in edit mode
+        if (!document.getElementById('editId').value) {
+            form.reset();
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+        }
     });
 
-    // Close menu when link is clicked (on mobile)
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function() {
-            navMenu.classList.remove('open');
-            navToggle.classList.remove('open');
+    // Search functionality (optional enhancement)
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.className = 'form-control mb-3';
+    searchInput.placeholder = 'Cari mahasiswa...';
+    searchInput.id = 'searchInput';
+    
+    const tableContainer = document.querySelector('#mid-section .card-body');
+    if (tableContainer) {
+        tableContainer.insertBefore(searchInput, tableContainer.firstChild);
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#studentTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
         });
     });
+    }
+
+    document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const updateProfileBtn = document.getElementById('updateProfileBtn');
+        const originalText = updateProfileBtn.innerHTML;
+        
+        // Show loading state
+        updateProfileBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
+        updateProfileBtn.disabled = true;
+        
+        const userid = document.getElementById('edit_userid').value;
+        const nama = document.getElementById('edit_nama').value;
+        const oldPassword = document.getElementById('old_password').value;
+        const newPassword = document.getElementById('new_password').value;
+
+        try {
+            // Ambil data user lama
+            const { data: user, error } = await supabaseClient.from('users').select('*').eq('userid', userid).single();
+
+            if (error || !user) {
+                showAlert('User tidak ditemukan!', 'danger');
+                updateProfileBtn.innerHTML = originalText;
+                updateProfileBtn.disabled = false;
+                return;
+            }
+
+            // Verifikasi password lama
+            if (oldPassword !== user.passw) { // Sementara gunakan plain text match
+                showAlert('Password lama salah!', 'danger');
+                updateProfileBtn.innerHTML = originalText;
+                updateProfileBtn.disabled = false;
+                return;
+            }
+
+            // Siapkan data update
+            let updateData = { nama };
+            if (newPassword) {
+                updateData.passw = newPassword; // Sementara simpan plain text
+            }
+
+            // Update user
+            const { error: updateError } = await supabaseClient.from('users').update(updateData).eq('userid', userid);
+
+            if (updateError) {
+                showAlert('Gagal update profil: ' + updateError.message, 'danger');
+                updateProfileBtn.innerHTML = originalText;
+                updateProfileBtn.disabled = false;
+            } else {
+                // Update localStorage with new user data
+                localStorage.setItem('user', JSON.stringify({ userid: userid, nama: nama }));
+                
+                // Update displayed user name
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = nama;
+                }
+                
+                // Update displayed user ID
+                const userIDElement = document.getElementById('userID');
+                if (userIDElement) {
+                    userIDElement.textContent = userid;
+                }
+                
+                showAlert('Profil berhasil diupdate!', 'success');
+                document.getElementById('editProfileForm').reset();
+                loadProfileData(); // Reload the form with updated data
+                updateProfileBtn.innerHTML = originalText;
+                updateProfileBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            showAlert('Gagal update profil: ' + error.message, 'danger');
+            updateProfileBtn.innerHTML = originalText;
+            updateProfileBtn.disabled = false;
+        }
+    });
+
+    document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth' });
 });
