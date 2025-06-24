@@ -4,260 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem Manajemen Mahasiswa</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <header class="header py-3 bg-white">
-        <div class="container">
-            <h1 class="navbar-brand text-primary mb-0">SMM - Sistem Manajemen Mahasiswa</h1>
-        </div>
-    </header>
-
-    <main class="main-content flex-grow-1 d-flex align-items-center">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Login</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="alertContainer"></div>
-                            <form id="loginForm">
-                                <div class="mb-3">
-                                    <label for="userid" class="form-label">User ID</label>
-                                    <input type="text" class="form-control" id="userid" placeholder="Masukkan User ID" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" placeholder="Masukkan Password" required>
-                                </div>
-                                <button type="submit" id="loginBtn" class="btn btn-primary w-100 mb-3">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Login
-                                </button>
-                                <p class="text-center mb-0">
-                                    Belum punya akun? <a href="#" id="showRegister">Daftar sekarang</a>
-                                </p>
-                            </form>
-
-                            <div class="register-form d-none">
-                                <form id="registerForm">
-                                    <div class="mb-3">
-                                        <label for="reg_userid" class="form-label">User ID</label>
-                                        <input type="text" class="form-control" id="reg_userid" placeholder="Masukkan User ID" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="reg_nama" class="form-label">Nama</label>
-                                        <input type="text" class="form-control" id="reg_nama" placeholder="Masukkan Nama" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="reg_password" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="reg_password" placeholder="Masukkan Password" required>
-                                    </div>
-                                    <button type="submit" id="registerBtn" class="btn btn-success w-100 mb-3">
-                                        <i class="fas fa-user-plus me-2"></i>Daftar
-                                    </button>
-                                </form>
-                                <p class="text-center mb-0">
-                                    Sudah punya akun? <a href="#" id="showLogin">Login sekarang</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+<body>
+    <div class="container">
+        <div class="form-box login">
+            <form id="loginForm">
+                <h1>Login</h1>
+                <div class="input-box">
+                    <input type="text" id="userid" placeholder="User ID" required>
+                    <i class='bx bxs-user'></i>
                 </div>
+                <div class="input-box">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt' ></i>
+                </div>
+                <div class="forgot-link">
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <p>or login with social platforms</p>
+                <div class="social-icons">
+                    <a href="#"><i class='bx bxl-google' ></i></a>
+                    <a href="#"><i class='bx bxl-facebook' ></i></a>
+                    <a href="#"><i class='bx bxl-github' ></i></a>
+                    <a href="#"><i class='bx bxl-linkedin' ></i></a>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-box register">
+            <form id="registerForm">
+                <h1>Registration</h1>
+                <div class="input-box">
+                    <input type="text" id="reg_userid" placeholder="User ID" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="text" id="reg_nama" placeholder="Nama" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="reg_password" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt' ></i>
+                </div>
+                <button type="submit" class="btn">Register</button>
+                <p>or register with social platforms</p>
+                <div class="social-icons">
+                    <a href="#"><i class='bx bxl-google' ></i></a>
+                    <a href="#"><i class='bx bxl-facebook' ></i></a>
+                    <a href="#"><i class='bx bxl-github' ></i></a>
+                    <a href="#"><i class='bx bxl-linkedin' ></i></a>
+                </div>
+            </form>
+        </div>
+
+        <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <h1>Hello, Welcome!</h1>
+                <p>Don't have an account?</p>
+                <button class="btn register-btn">Register</button>
+            </div>
+
+            <div class="toggle-panel toggle-right">
+                <h1>Welcome Back!</h1>
+                <p>Already have an account?</p>
+                <button class="btn login-btn">Login</button>
             </div>
         </div>
-    </main>
+    </div>
 
-    <footer class="footer py-3 bg-dark text-white text-center">
-        <div class="container">
-            <p class="mb-1">© 2024 Sistem Manajemen Mahasiswa</p>
-            <p class="mb-0">Dibuat dengan ❤️ untuk pendidikan</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-    <script>
-        console.log('Script loaded');
-
-        // Initialize Supabase client
-        let supabase;
-        try {
-            supabase = window.supabase.createClient(
-                'https://uyvwcygovdqllqndixpj.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
-            );
-            console.log('Supabase client initialized');
-        } catch (error) {
-            console.error('Failed to initialize Supabase:', error);
-            alert('Gagal menginisialisasi Supabase. Periksa koneksi internet atau kredensial.');
-        }
-
-        // Alert function
-        function showAlert(message, type) {
-            console.log(`Alert: ${message} (${type})`);
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            const container = document.getElementById('alertContainer');
-            container.innerHTML = '';
-            container.appendChild(alertDiv);
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
-        }
-
-        // Toggle between login and register forms
-        document.getElementById('showRegister').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelector('.login-form').classList.add('d-none');
-            document.querySelector('.register-form').classList.remove('d-none');
-            console.log('Switched to register form');
-        });
-
-        document.getElementById('showLogin').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelector('.register-form').classList.add('d-none');
-            document.querySelector('.login-form').classList.remove('d-none');
-            console.log('Switched to login form');
-        });
-
-        // Login handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log('Login form submitted');
-
-            const userid = document.getElementById('userid').value.trim();
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
-            const originalText = loginBtn.innerHTML;
-
-            if (!userid || !password) {
-                showAlert('User ID dan Password harus diisi!', 'danger');
-                return;
-            }
-
-            loginBtn.innerHTML = '<div class="loading me-2"></div>Memproses...';
-            loginBtn.disabled = true;
-
-            try {
-                if (!supabase) {
-                    throw new Error('Supabase client not initialized');
-                }
-
-                console.log('Querying Supabase for user:', userid);
-                const { data: user, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('userid', userid)
-                    .single();
-
-                if (error) {
-                    console.error('Supabase query error:', error);
-                    throw new Error('Failed to fetch user: ' + error.message);
-                }
-
-                if (!user) {
-                    showAlert('User ID tidak ditemukan!', 'danger');
-                    loginBtn.innerHTML = originalText;
-                    loginBtn.disabled = false;
-                    return;
-                }
-
-                console.log('User found:', user.userid);
-                console.log('Verifying password');
-                if (password === user.passw) { // Sementara gunakan plain text match
-                    console.log('Password matched');
-                    localStorage.setItem('user', JSON.stringify({ userid: user.userid, nama: user.nama }));
-                    showAlert('Login berhasil! Mengarahkan ke halaman utama...', 'success');
-                    setTimeout(() => {
-                        window.location.assign('index.html');
-                    }, 1000);
-                } else {
-                    showAlert('Password salah!', 'danger');
-                    loginBtn.innerHTML = originalText;
-                    loginBtn.disabled = false;
-                }
-
-            } catch (error) {
-                console.error('Login error:', error);
-                showAlert('Gagal login: ' + error.message, 'danger');
-                loginBtn.innerHTML = originalText;
-                loginBtn.disabled = false;
-            }
-        });
-
-        // Register handler
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log('Register form submitted');
-
-            const userid = document.getElementById('reg_userid').value.trim();
-            const nama = document.getElementById('reg_nama').value.trim();
-            const password = document.getElementById('reg_password').value;
-            const registerBtn = document.getElementById('registerBtn');
-            const originalText = registerBtn.innerHTML;
-
-            if (!userid || !nama || !password) {
-                showAlert('Semua field harus diisi!', 'danger');
-                return;
-            }
-
-            registerBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
-            registerBtn.disabled = true;
-
-            try {
-                if (!supabase) {
-                    throw new Error('Supabase client not initialized');
-                }
-
-                console.log('Checking if user exists:', userid);
-                const { data: existingUser } = await supabase
-                    .from('users')
-                    .select('userid')
-                    .eq('userid', userid);
-
-                if (existingUser.length > 0) {
-                    showAlert('User ID sudah terdaftar!', 'danger');
-                    registerBtn.innerHTML = originalText;
-                    registerBtn.disabled = false;
-                    return;
-                }
-
-                console.log('Inserting new user:', { userid, nama, passw: password }); // Sementara simpan plain text
-                const { error } = await supabase
-                    .from('users')
-                    .insert([{ userid, nama, passw: password }]);
-
-                if (error) {
-                    console.error('Registration error:', error);
-                    throw new Error('Gagal mendaftar: ' + error.message);
-                }
-
-                showAlert('Pendaftaran berhasil! Silakan login.', 'success');
-                document.querySelector('.register-form').classList.add('d-none');
-                document.querySelector('.login-form').classList.remove('d-none');
-                document.getElementById('reg_userid').value = '';
-                document.getElementById('reg_nama').value = '';
-                document.getElementById('reg_password').value = '';
-                registerBtn.innerHTML = originalText;
-                registerBtn.disabled = false;
-
-            } catch (error) {
-                console.error('Registration error:', error);
-                showAlert('Gagal mendaftar: ' + error.message, 'danger');
-                registerBtn.innerHTML = originalText;
-                registerBtn.disabled = false;
-            }
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="login.js"></script>
 </body>
 </html>
