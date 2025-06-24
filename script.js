@@ -1,750 +1,679 @@
-// Initialize Supabase client
-const supabaseUrl = 'https://uyvwcygovdqllqndixpj.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dndjeWdvdmRxbGxxbmRpeHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjQ2NjEsImV4cCI6MjA2NjI0MDY2MX0.udtcc1CR7nHYZGny4CHJWZPYEYzZRUA0UF04zbHYJT0'
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey)
+/* Custom CSS for Student Management System */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-// Navigation and UI Management
-document.addEventListener('DOMContentLoaded', function() {
-    // Theme Toggler
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const themeIcon = themeToggle.querySelector('i');
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    const applyTheme = (theme) => {
-        if (theme === 'dark') {
-            body.classList.add('dark-mode');
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        } else {
-            body.classList.remove('dark-mode');
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
-    };
+/* Template dimensions - responsive design */
+.main-content {
+    min-height: calc(100vh - 140px); /* Account for header and footer */
+    padding: 2rem 0;
+}
 
-    themeToggle.addEventListener('click', () => {
-        const isDarkMode = body.classList.contains('dark-mode');
-        if (isDarkMode) {
-            localStorage.setItem('theme', 'light');
-            applyTheme('light');
-        } else {
-            localStorage.setItem('theme', 'dark');
-            applyTheme('dark');
-        }
-    });
+/* Header Styles */
+.header {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    applyTheme(savedTheme);
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
 
-    // Check user authentication
-    function checkAuth() {
-        const userData = localStorage.getItem('user');
-        if (!userData) {
-            // User not logged in, redirect to login page
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        try {
-            const user = JSON.parse(userData);
-            // Display user name in header
-            const userNameElement = document.getElementById('userName');
-            if (userNameElement && user.nama) {
-                userNameElement.textContent = user.nama;
-            }
-            
-            // Display user ID in dropdown
-            const userIDElement = document.getElementById('userID');
-            if (userIDElement && user.userid) {
-                userIDElement.textContent = user.userid;
-            }
-        } catch (error) {
-            console.error('Error parsing user data:', error);
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* Section Styles */
+.section {
+    display: none;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px);
     }
-
-    // Logout functionality
-    function logout() {
-        if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
-            localStorage.removeItem('user');
-            window.location.href = 'login.html';
-        }
+    to { 
+        opacity: 1; 
+        transform: translateY(0);
     }
+}
 
-    // Initialize authentication check
-    checkAuth();
+/* Welcome Card Styles */
+.welcome-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 2rem;
+}
 
-    // Add logout event listener
-    function setLogoutBtnListener() {
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.onclick = function(e) {
-                e.preventDefault();
-                logout();
-            };
-        }
+.welcome-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: white;
+    padding: 2rem 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+.feature-card h5, .feature-card p {
+    color: #007bff;
+}
+
+/* Section Title */
+.section-title {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #007bff;
+    display: inline-block;
+}
+
+/* Card Enhancements */
+.card {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    border: none;
+}
+
+/* Form Enhancements */
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Button Enhancements */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Table Enhancements */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #343a40, #495057);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.btn-edit:hover, .btn-delete:hover {
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Statistics Cards */
+.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    background: linear-gradient(135deg, #343a40, #495057) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .main-content {
+        padding: 1.5rem 0;
     }
-
-    // Function untuk memuat data akun pengguna
-    function loadAccountSection() {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                document.getElementById('accountName').textContent = user.nama || '-';
-                document.getElementById('accountUserID').textContent = user.userid || '-';
-            } catch (error) {
-                document.getElementById('accountName').textContent = '-';
-                document.getElementById('accountUserID').textContent = '-';
-            }
-        }
-        setLogoutBtnListener();
-    }
-
-    // Navigation handling with Bootstrap
-    const navLinks = document.querySelectorAll('.nav-link');
-    const sections = document.querySelectorAll('.section');
-
-    // Function untuk menampilkan section
-    function showSection(targetId) {
-        sections.forEach(section => {
-            if (section.id === targetId) {
-                section.classList.add('active');
-            } else {
-                section.classList.remove('active');
-            }
-        });
-
-        // Update active nav link
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-target') === targetId) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    // Event listener untuk navigasi
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('data-target');
-            showSection(targetId);
-            
-            // Load students hanya jika membuka section data mahasiswa
-            if (targetId === 'mid-section') {
-                loadStudents();
-            }
-            // Load jurusan jika membuka section jurusan
-            if (targetId === 'jurusan-section') {
-                loadJurusan();
-            }
-            // Load prodi jika membuka section prodi
-            if (targetId === 'prodi-section') {
-                loadProdi();
-                loadJurusanDropdown();
-            }
-            // Load profile data jika membuka section profile
-            if (targetId === 'profile') {
-                loadProfileData();
-            }
-            // Load account data jika membuka section account
-            if (targetId === 'account') {
-                loadAccountSection();
-            }
-
-            // Close mobile menu after navigation
-            const navbarCollapse = document.querySelector('.navbar-collapse');
-            if (navbarCollapse.classList.contains('show')) {
-                const bsCollapse = new bootstrap.Collapse(navbarCollapse);
-                bsCollapse.hide();
-            }
-        });
-    });
-
-    // Panggil setLogoutBtnListener saat halaman siap (untuk default section)
-    setLogoutBtnListener();
-
-    // Statistics update function
-    async function updateStatistics() {
-        try {
-            const { data, error } = await supabaseClient.from('mahasiswa').select('*');
-
-            if (error) throw error;
-
-            const totalStudents = data ? data.length : 0;
-            const uniqueProdi = data ? new Set(data.map(m => m.id_prodi)).size : 0;
-
-            document.getElementById('totalStudents').textContent = totalStudents;
-            document.getElementById('totalJurusan').textContent = uniqueProdi;
-        } catch (error) {
-            console.error('Error updating statistics:', error);
-        }
-    }
-
-    // Fungsi untuk memuat data mahasiswa
-    async function loadStudents() {
-        const tbody = document.querySelector('#studentTable tbody');
-        
-        try {
-            // Show loading state
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center"><div class="loading"></div> Memuat data...</td></tr>';
-
-            const { data, error } = await supabaseClient.from('mahasiswa').select('*');
-
-            if (error) {
-                console.error('Error fetching data:', error);
-                throw error;
-            }
-
-            // Clear table
-            tbody.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center">
-                            <div class="empty-state">
-                                <i class="fas fa-users"></i>
-                                <p>Tidak ada data mahasiswa</p>
-                                <small class="text-muted">Mulai dengan menambahkan data mahasiswa baru</small>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                updateStatistics();
-                return;
-            }
-
-            // Populate table
-            data.forEach(m => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${m.nim}</td>
-                    <td>${m.nama}</td>
-                    <td>${m.tgl_lahir || '-'}</td>
-                    <td>${m.alamat || '-'}</td>
-                    <td>${m.agama || '-'}</td>
-                    <td>${m.kelamin || '-'}</td>
-                    <td>${m.no_hp || '-'}</td>
-                    <td>${m.email || '-'}</td>
-                    <td>${m.id_prodi || '-'}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button onclick="editStudent('${m.nim}')" class="btn btn-edit btn-sm">Edit</button>
-                            <button onclick="deleteStudent('${m.nim}')" class="btn btn-delete btn-sm">Hapus</button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            // Update statistics
-            updateStatistics();
-
-        } catch (error) {
-            console.error('Error:', error);
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Gagal memuat data
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    // Fungsi untuk mengambil data prodi dari Supabase dan mengisi dropdown
-    async function loadProdiDropdown() {
-        const prodiSelect = document.getElementById('id_prodi');
-        prodiSelect.innerHTML = '<option value="">Pilih Program Studi</option>';
-        try {
-            const { data, error } = await supabaseClient.from('prodi').select('id_prodi, nama_prodi, id_jurusan');
-            if (error) throw error;
-            data.forEach(prodi => {
-                const option = document.createElement('option');
-                option.value = prodi.id_prodi;
-                option.textContent = prodi.nama_prodi + ' (ID Jurusan: ' + prodi.id_jurusan + ')';
-                prodiSelect.appendChild(option);
-            });
-        } catch (error) {
-            prodiSelect.innerHTML = '<option value="">Gagal memuat prodi</option>';
-        }
-    }
-
-    // Panggil loadProdiDropdown saat halaman siap
-    loadProdiDropdown();
-
-    // Function untuk memuat data profil pengguna
-    function loadProfileData() {
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                document.getElementById('edit_userid').value = user.userid || '';
-                document.getElementById('edit_nama').value = user.nama || '';
-            } catch (error) {
-                console.error('Error parsing user data for profile:', error);
-            }
-        }
-    }
-
-    // Form handling
-    const studentForm = document.getElementById('studentForm');
     
-    studentForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerHTML;
-        
-        // Show loading state
-        submitBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
-        submitBtn.disabled = true;
-
-        const editId = document.getElementById('editId').value;
-        
-        const studentData = {
-            nim: document.getElementById('nim').value,
-            nama: document.getElementById('nama').value,
-            tgl_lahir: document.getElementById('tgl_lahir').value,
-            alamat: document.getElementById('alamat').value,
-            agama: document.getElementById('agama').value,
-            kelamin: document.getElementById('kelamin').value,
-            no_hp: document.getElementById('no_hp').value,
-            email: document.getElementById('email').value,
-            id_prodi: parseInt(document.getElementById('id_prodi').value)
-        };
-
-        try {
-            let response;
-            
-            if (editId) {
-                // Update existing data
-                response = await supabaseClient.from('mahasiswa').update(studentData).eq('nim', editId);
-            } else {
-                // Insert new data
-                response = await supabaseClient.from('mahasiswa').insert([studentData]);
-            }
-
-            if (response.error) throw response.error;
-
-            // Reset form
-            studentForm.reset();
-            document.getElementById('editId').value = '';
-            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-            submitBtn.disabled = false;
-            
-            // Reload data
-            await loadStudents();
-            
-            // Show success message
-            showAlert(editId ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!', 'success');
-            
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('Gagal menyimpan data: ' + error.message, 'danger');
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
-
-    // Alert function
-    function showAlert(message, type) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        const container = document.querySelector('.container');
-        container.insertBefore(alertDiv, container.firstChild);
-        
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
+    .welcome-card {
+        padding: 2rem 1.5rem;
     }
-
-    // Edit function
-    window.editStudent = async function(nim) {
-        try {
-            const { data, error } = await supabaseClient.from('mahasiswa').select('*').eq('nim', nim).single();
-
-            if (error) throw error;
-
-            if (data) {
-                // Fill form with data
-                document.getElementById('editId').value = data.nim;
-                document.getElementById('nim').value = data.nim;
-                document.getElementById('nama').value = data.nama;
-                
-                // Change button text
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Update';
-                
-                showAlert('Data siap untuk diedit', 'info');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('Gagal memuat data untuk edit: ' + error.message, 'danger');
-        }
-    };
-
-    // Delete function
-    window.deleteStudent = async function(nim) {
-        if (confirm('Yakin ingin menghapus data ini?')) {
-            try {
-                const { error } = await supabaseClient.from('mahasiswa').delete().eq('nim', nim);
-
-                if (error) throw error;
-
-                await loadStudents();
-                showAlert('Data berhasil dihapus!', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('Gagal menghapus data: ' + error.message, 'danger');
-            }
-        }
-    };
-
-    // Initial load if on data section
-    if (document.getElementById('mid-section').classList.contains('active')) {
-        loadStudents();
-    }
-
-    // Initialize statistics
-    updateStatistics();
-
-    // Form reset when switching to data section
-    document.querySelector('a[data-target="mid-section"]').addEventListener('click', function() {
-        const form = document.getElementById('studentForm');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        // Reset form if not in edit mode
-        if (!document.getElementById('editId').value) {
-            form.reset();
-            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-        }
-    });
-
-    // Search functionality (optional enhancement)
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.className = 'form-control mb-3';
-    searchInput.placeholder = 'Cari mahasiswa...';
-    searchInput.id = 'searchInput';
     
-    const tableContainer = document.querySelector('#mid-section .card-body');
-    if (tableContainer) {
-        tableContainer.insertBefore(searchInput, tableContainer.firstChild);
-        
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#studentTable tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-        });
-    });
+    .feature-card {
+        margin-bottom: 1rem;
     }
+}
 
-    document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const updateProfileBtn = document.getElementById('updateProfileBtn');
-        const originalText = updateProfileBtn.innerHTML;
-        
-        // Show loading state
-        updateProfileBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
-        updateProfileBtn.disabled = true;
-        
-        const userid = document.getElementById('edit_userid').value;
-        const nama = document.getElementById('edit_nama').value;
-        const oldPassword = document.getElementById('old_password').value;
-        const newPassword = document.getElementById('new_password').value;
-
-        try {
-            // Ambil data user lama
-            const { data: user, error } = await supabaseClient.from('users').select('*').eq('userid', userid).single();
-
-            if (error || !user) {
-                showAlert('User tidak ditemukan!', 'danger');
-                updateProfileBtn.innerHTML = originalText;
-                updateProfileBtn.disabled = false;
-                return;
-            }
-
-            // Verifikasi password lama
-            if (oldPassword !== user.passw) { // Sementara gunakan plain text match
-                showAlert('Password lama salah!', 'danger');
-                updateProfileBtn.innerHTML = originalText;
-                updateProfileBtn.disabled = false;
-                return;
-            }
-
-            // Siapkan data update
-            let updateData = { nama };
-            if (newPassword) {
-                updateData.passw = newPassword; // Sementara simpan plain text
-            }
-
-            // Update user
-            const { error: updateError } = await supabaseClient.from('users').update(updateData).eq('userid', userid);
-
-            if (updateError) {
-                showAlert('Gagal update profil: ' + updateError.message, 'danger');
-                updateProfileBtn.innerHTML = originalText;
-                updateProfileBtn.disabled = false;
-            } else {
-                // Update localStorage with new user data
-                localStorage.setItem('user', JSON.stringify({ userid: userid, nama: nama }));
-                
-                // Update displayed user name
-                const userNameElement = document.getElementById('userName');
-                if (userNameElement) {
-                    userNameElement.textContent = nama;
-                }
-                
-                // Update displayed user ID
-                const userIDElement = document.getElementById('userID');
-                if (userIDElement) {
-                    userIDElement.textContent = userid;
-                }
-                
-                showAlert('Profil berhasil diupdate!', 'success');
-                document.getElementById('editProfileForm').reset();
-                loadProfileData(); // Reload the form with updated data
-                updateProfileBtn.innerHTML = originalText;
-                updateProfileBtn.disabled = false;
-            }
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            showAlert('Gagal update profil: ' + error.message, 'danger');
-            updateProfileBtn.innerHTML = originalText;
-            updateProfileBtn.disabled = false;
-        }
-    });
-
-    document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth' });
-
-    // ===================== JURUSAN =====================
-    async function loadJurusan() {
-        const tbody = document.querySelector('#jurusanTable tbody');
-        try {
-            tbody.innerHTML = '<tr><td colspan="3" class="text-center"><div class="loading"></div> Memuat data...</td></tr>';
-            const { data, error } = await supabaseClient.from('jurusan').select('*');
-            if (error) throw error;
-            tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center"><div class="empty-state"><i class="fas fa-building-columns"></i><p>Tidak ada data jurusan</p></div></td></tr>`;
-                return;
-            }
-            data.forEach(j => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${j.id_jurusan}</td>
-                    <td>${j.nama_jurusan}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button onclick="editJurusan('${j.id_jurusan}')" class="btn btn-edit btn-sm">Edit</button>
-                            <button onclick="deleteJurusan('${j.id_jurusan}')" class="btn btn-delete btn-sm">Hapus</button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        } catch (error) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Gagal memuat data</td></tr>`;
-        }
+@media (max-width: 768px) {
+    .main-content {
+        padding: 1rem 0;
     }
-
-    const jurusanForm = document.getElementById('jurusanForm');
-    if (jurusanForm) {
-        jurusanForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitJurusanBtn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
-            submitBtn.disabled = true;
-            const editId = document.getElementById('editJurusanId').value;
-            const nama_jurusan = document.getElementById('nama_jurusan').value;
-            try {
-                let response;
-                if (editId) {
-                    response = await supabaseClient.from('jurusan').update({ nama_jurusan }).eq('id_jurusan', editId);
-                } else {
-                    response = await supabaseClient.from('jurusan').insert([{ nama_jurusan }]);
-                }
-                if (response.error) throw response.error;
-                jurusanForm.reset();
-                document.getElementById('editJurusanId').value = '';
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-                submitBtn.disabled = false;
-                await loadJurusan();
-                showAlert(editId ? 'Data jurusan berhasil diupdate!' : 'Data jurusan berhasil ditambahkan!', 'success');
-            } catch (error) {
-                showAlert('Gagal menyimpan data jurusan: ' + error.message, 'danger');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
+    
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
-
-    window.editJurusan = async function(id_jurusan) {
-        try {
-            const { data, error } = await supabaseClient.from('jurusan').select('*').eq('id_jurusan', id_jurusan).single();
-            if (error) throw error;
-            if (data) {
-                document.getElementById('editJurusanId').value = data.id_jurusan;
-                document.getElementById('nama_jurusan').value = data.nama_jurusan;
-                const submitBtn = document.getElementById('submitJurusanBtn');
-                submitBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Update';
-                showAlert('Data jurusan siap untuk diedit', 'info');
-            }
-        } catch (error) {
-            showAlert('Gagal memuat data jurusan untuk edit: ' + error.message, 'danger');
-        }
-    };
-
-    window.deleteJurusan = async function(id_jurusan) {
-        if (confirm('Yakin ingin menghapus data jurusan ini?')) {
-            try {
-                const { error } = await supabaseClient.from('jurusan').delete().eq('id_jurusan', id_jurusan);
-                if (error) throw error;
-                await loadJurusan();
-                showAlert('Data jurusan berhasil dihapus!', 'success');
-            } catch (error) {
-                showAlert('Gagal menghapus data jurusan: ' + error.message, 'danger');
-            }
-        }
-    };
-
-    // ===================== PRODI =====================
-    async function loadProdi() {
-        const tbody = document.querySelector('#prodiTable tbody');
-        try {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center"><div class="loading"></div> Memuat data...</td></tr>';
-            const { data, error } = await supabaseClient.from('prodi').select('id_prodi, nama_prodi, id_jurusan');
-            if (error) throw error;
-            tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center"><div class="empty-state"><i class="fas fa-book-open"></i><p>Tidak ada data prodi</p></div></td></tr>`;
-                return;
-            }
-            // Ambil data jurusan untuk mapping nama
-            const { data: jurusanList } = await supabaseClient.from('jurusan').select('id_jurusan, nama_jurusan');
-            data.forEach(p => {
-                const jurusan = jurusanList ? jurusanList.find(j => j.id_jurusan === p.id_jurusan) : null;
-                const namaJurusan = jurusan ? jurusan.nama_jurusan : '-';
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${p.id_prodi}</td>
-                    <td>${p.nama_prodi}</td>
-                    <td>${namaJurusan}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button onclick="editProdi('${p.id_prodi}')" class="btn btn-edit btn-sm">Edit</button>
-                            <button onclick="deleteProdi('${p.id_prodi}')" class="btn btn-delete btn-sm">Hapus</button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        } catch (error) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Gagal memuat data</td></tr>`;
-        }
+    
+    .welcome-card {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1rem;
     }
-
-    const prodiForm = document.getElementById('prodiForm');
-    if (prodiForm) {
-        prodiForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitProdiBtn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
-            submitBtn.disabled = true;
-            const editId = document.getElementById('editProdiId').value;
-            const nama_prodi = document.getElementById('nama_prodi').value;
-            const id_jurusan = document.getElementById('id_jurusan_prodi').value;
-            try {
-                let response;
-                if (editId) {
-                    response = await supabaseClient.from('prodi').update({ nama_prodi, id_jurusan }).eq('id_prodi', editId);
-                } else {
-                    response = await supabaseClient.from('prodi').insert([{ nama_prodi, id_jurusan }]);
-                }
-                if (response.error) throw response.error;
-                prodiForm.reset();
-                document.getElementById('editProdiId').value = '';
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
-                submitBtn.disabled = false;
-                await loadProdi();
-                showAlert(editId ? 'Data prodi berhasil diupdate!' : 'Data prodi berhasil ditambahkan!', 'success');
-            } catch (error) {
-                showAlert('Gagal menyimpan data prodi: ' + error.message, 'danger');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
+    
+    .welcome-icon {
+        font-size: 3rem;
     }
+    
+    .feature-card {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-buttons .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    #userName {
+        max-width: 100px;
+    }
+}
 
-    window.editProdi = async function(id_prodi) {
-        try {
-            const { data, error } = await supabaseClient.from('prodi').select('*').eq('id_prodi', id_prodi).single();
-            if (error) throw error;
-            if (data) {
-                document.getElementById('editProdiId').value = data.id_prodi;
-                document.getElementById('nama_prodi').value = data.nama_prodi;
-                document.getElementById('id_jurusan_prodi').value = data.id_jurusan;
-                const submitBtn = document.getElementById('submitProdiBtn');
-                submitBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Update';
-                showAlert('Data prodi siap untuk diedit', 'info');
-            }
-        } catch (error) {
-            showAlert('Gagal memuat data prodi untuk edit: ' + error.message, 'danger');
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .welcome-card h1 {
+        font-size: 1.5rem;
+    }
+    
+    .welcome-card p {
+        font-size: 0.9rem;
+    }
+    
+    .feature-card h5 {
+        font-size: 1rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.8rem;
+    }
+    
+    .table {
+        font-size: 0.8rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Hamburger Menu Animation */
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler-icon {
+    transition: all 0.3s ease;
+}
+
+/* Custom scrollbar */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error messages */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* User Profile Dropdown Styles */
+.dropdown-menu {
+    display: none;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    margin-top: 0.5rem;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-header {
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    margin: 0.25rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.dropdown-item i {
+    color: #6c757d;
+}
+
+#userProfileDropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#userName {
+    font-weight: 500;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#userInfo {
+    cursor: default;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+#userInfo:hover {
+    background-color: #f8f9fa;
+    transform: none;
+}
+
+#userInfoText {
+    font-weight: 500;
+}
+
+#userID {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Mobile Dropdown Fix */
+@media (max-width: 991.98px) {
+    .navbar-collapse.show .dropdown-menu {
+        display: none;
+        position: static !important;
+        float: none !important;
+        width: 100% !important;
+        margin-top: 0.5rem;
+        box-shadow: none;
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    .navbar-collapse.show .dropdown-menu.show {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 1050 !important;
+        position: relative !important;
+    }
+    
+    #userProfileDropdown {
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1rem;
+    }
+    
+    #userProfileDropdown::after {
+        float: right;
+        margin-top: 0.5rem;
+    }
+    
+    /* Ensure dropdown is visible in mobile navbar */
+    .navbar-collapse.show {
+        overflow-y: visible;
+    }
+    
+    /* Mobile dropdown animation */
+    .navbar-collapse.show .dropdown-menu {
+        animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
         }
-    };
-
-    window.deleteProdi = async function(id_prodi) {
-        if (confirm('Yakin ingin menghapus data prodi ini?')) {
-            try {
-                const { error } = await supabaseClient.from('prodi').delete().eq('id_prodi', id_prodi);
-                if (error) throw error;
-                await loadProdi();
-                showAlert('Data prodi berhasil dihapus!', 'success');
-            } catch (error) {
-                showAlert('Gagal menghapus data prodi: ' + error.message, 'danger');
-            }
-        }
-    };
-
-    // Dropdown jurusan untuk form prodi
-    async function loadJurusanDropdown() {
-        const jurusanSelect = document.getElementById('id_jurusan_prodi');
-        jurusanSelect.innerHTML = '<option value="">Pilih Jurusan</option>';
-        try {
-            const { data, error } = await supabaseClient.from('jurusan').select('id_jurusan, nama_jurusan');
-            if (error) throw error;
-            data.forEach(jurusan => {
-                const option = document.createElement('option');
-                option.value = jurusan.id_jurusan;
-                option.textContent = jurusan.nama_jurusan;
-                jurusanSelect.appendChild(option);
-            });
-        } catch (error) {
-            jurusanSelect.innerHTML = '<option value="">Gagal memuat jurusan</option>';
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
-});
+}
+
+/* Profile Edit Section Styles */
+#profile .card {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#profile .form-control[readonly] {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+#profile .text-muted {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+#updateProfileBtn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+}
+
+#updateProfileBtn:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-2px);
+}
+
+#account .card {
+    max-width: 500px;
+    margin: 0 auto;
+}
+#account .fa-user-circle {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+}
+#accountName {
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+#accountUserID {
+    font-weight: 500;
+    color: #007bff;
+}
+#account .btn-danger {
+    margin-top: 1.5rem;
+    padding: 0.6rem 2rem;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.about-photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-bottom: 1rem;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+/* Dark mode for Header/Navbar */
+body.dark-mode .header {
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .navbar-brand,
+body.dark-mode .nav-link,
+body.dark-mode .dropdown-item {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+body.dark-mode .navbar-brand:hover,
+body.dark-mode .nav-link:hover,
+body.dark-mode .dropdown-item:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure general text elements are readable */
+body.dark-mode .card-body,
+body.dark-mode .form-label,
+body.dark-mode .text-muted {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .welcome-card {
+    background: linear-gradient(135deg, #2c3e50, #4a6fa5);
+}
+
+body.dark-mode .feature-card {
+    background-color: #1e1e1e;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .feature-card h5,
+body.dark-mode .feature-card p {
+    color: #6ea8fe;
+}
+
+body.dark-mode .section-title {
+    color: #ffffff;
+    border-bottom-color: #0d6efd;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .card-header {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+}
+
+body.dark-mode .form-control, 
+body.dark-mode .form-select {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .form-control:focus, 
+body.dark-mode .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+body.dark-mode .table {
+    color: #e0e0e0;
+}
+
+body.dark-mode .table tbody td {
+    background: transparent;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .table tbody tr:hover {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .about-photo {
+    border: 3px solid #0d6efd;
+}
+
+body.dark-mode #theme-toggle {
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+body.dark-mode #theme-toggle:hover {
+    background-color: #ffffff;
+    color: #121212;
+}
