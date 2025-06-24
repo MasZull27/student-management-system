@@ -137,6 +137,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetId === 'mid-section') {
                 loadStudents();
             }
+            // Load jurusan jika membuka section jurusan
+            if (targetId === 'jurusan-section') {
+                loadJurusan();
+            }
+            // Load prodi jika membuka section prodi
+            if (targetId === 'prodi-section') {
+                loadProdi();
+                loadJurusanDropdown();
+            }
             // Load profile data jika membuka section profile
             if (targetId === 'profile') {
                 loadProfileData();
@@ -529,4 +538,213 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth' });
+
+    // ===================== JURUSAN =====================
+    async function loadJurusan() {
+        const tbody = document.querySelector('#jurusanTable tbody');
+        try {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center"><div class="loading"></div> Memuat data...</td></tr>';
+            const { data, error } = await supabaseClient.from('jurusan').select('*');
+            if (error) throw error;
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center"><div class="empty-state"><i class="fas fa-building-columns"></i><p>Tidak ada data jurusan</p></div></td></tr>`;
+                return;
+            }
+            data.forEach(j => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${j.id_jurusan}</td>
+                    <td>${j.nama_jurusan}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="editJurusan('${j.id_jurusan}')" class="btn btn-edit btn-sm">Edit</button>
+                            <button onclick="deleteJurusan('${j.id_jurusan}')" class="btn btn-delete btn-sm">Hapus</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Gagal memuat data</td></tr>`;
+        }
+    }
+
+    const jurusanForm = document.getElementById('jurusanForm');
+    if (jurusanForm) {
+        jurusanForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitJurusanBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
+            submitBtn.disabled = true;
+            const editId = document.getElementById('editJurusanId').value;
+            const nama_jurusan = document.getElementById('nama_jurusan').value;
+            try {
+                let response;
+                if (editId) {
+                    response = await supabaseClient.from('jurusan').update({ nama_jurusan }).eq('id_jurusan', editId);
+                } else {
+                    response = await supabaseClient.from('jurusan').insert([{ nama_jurusan }]);
+                }
+                if (response.error) throw response.error;
+                jurusanForm.reset();
+                document.getElementById('editJurusanId').value = '';
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+                submitBtn.disabled = false;
+                await loadJurusan();
+                showAlert(editId ? 'Data jurusan berhasil diupdate!' : 'Data jurusan berhasil ditambahkan!', 'success');
+            } catch (error) {
+                showAlert('Gagal menyimpan data jurusan: ' + error.message, 'danger');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    window.editJurusan = async function(id_jurusan) {
+        try {
+            const { data, error } = await supabaseClient.from('jurusan').select('*').eq('id_jurusan', id_jurusan).single();
+            if (error) throw error;
+            if (data) {
+                document.getElementById('editJurusanId').value = data.id_jurusan;
+                document.getElementById('nama_jurusan').value = data.nama_jurusan;
+                const submitBtn = document.getElementById('submitJurusanBtn');
+                submitBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Update';
+                showAlert('Data jurusan siap untuk diedit', 'info');
+            }
+        } catch (error) {
+            showAlert('Gagal memuat data jurusan untuk edit: ' + error.message, 'danger');
+        }
+    };
+
+    window.deleteJurusan = async function(id_jurusan) {
+        if (confirm('Yakin ingin menghapus data jurusan ini?')) {
+            try {
+                const { error } = await supabaseClient.from('jurusan').delete().eq('id_jurusan', id_jurusan);
+                if (error) throw error;
+                await loadJurusan();
+                showAlert('Data jurusan berhasil dihapus!', 'success');
+            } catch (error) {
+                showAlert('Gagal menghapus data jurusan: ' + error.message, 'danger');
+            }
+        }
+    };
+
+    // ===================== PRODI =====================
+    async function loadProdi() {
+        const tbody = document.querySelector('#prodiTable tbody');
+        try {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center"><div class="loading"></div> Memuat data...</td></tr>';
+            const { data, error } = await supabaseClient.from('prodi').select('id_prodi, nama_prodi, id_jurusan');
+            if (error) throw error;
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center"><div class="empty-state"><i class="fas fa-book-open"></i><p>Tidak ada data prodi</p></div></td></tr>`;
+                return;
+            }
+            // Ambil data jurusan untuk mapping nama
+            const { data: jurusanList } = await supabaseClient.from('jurusan').select('id_jurusan, nama_jurusan');
+            data.forEach(p => {
+                const jurusan = jurusanList ? jurusanList.find(j => j.id_jurusan === p.id_jurusan) : null;
+                const namaJurusan = jurusan ? jurusan.nama_jurusan : '-';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${p.id_prodi}</td>
+                    <td>${p.nama_prodi}</td>
+                    <td>${namaJurusan}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="editProdi('${p.id_prodi}')" class="btn btn-edit btn-sm">Edit</button>
+                            <button onclick="deleteProdi('${p.id_prodi}')" class="btn btn-delete btn-sm">Hapus</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Gagal memuat data</td></tr>`;
+        }
+    }
+
+    const prodiForm = document.getElementById('prodiForm');
+    if (prodiForm) {
+        prodiForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitProdiBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading me-2"></div>Menyimpan...';
+            submitBtn.disabled = true;
+            const editId = document.getElementById('editProdiId').value;
+            const nama_prodi = document.getElementById('nama_prodi').value;
+            const id_jurusan = document.getElementById('id_jurusan_prodi').value;
+            try {
+                let response;
+                if (editId) {
+                    response = await supabaseClient.from('prodi').update({ nama_prodi, id_jurusan }).eq('id_prodi', editId);
+                } else {
+                    response = await supabaseClient.from('prodi').insert([{ nama_prodi, id_jurusan }]);
+                }
+                if (response.error) throw response.error;
+                prodiForm.reset();
+                document.getElementById('editProdiId').value = '';
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+                submitBtn.disabled = false;
+                await loadProdi();
+                showAlert(editId ? 'Data prodi berhasil diupdate!' : 'Data prodi berhasil ditambahkan!', 'success');
+            } catch (error) {
+                showAlert('Gagal menyimpan data prodi: ' + error.message, 'danger');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    window.editProdi = async function(id_prodi) {
+        try {
+            const { data, error } = await supabaseClient.from('prodi').select('*').eq('id_prodi', id_prodi).single();
+            if (error) throw error;
+            if (data) {
+                document.getElementById('editProdiId').value = data.id_prodi;
+                document.getElementById('nama_prodi').value = data.nama_prodi;
+                document.getElementById('id_jurusan_prodi').value = data.id_jurusan;
+                const submitBtn = document.getElementById('submitProdiBtn');
+                submitBtn.innerHTML = '<i class="fas fa-edit me-2"></i>Update';
+                showAlert('Data prodi siap untuk diedit', 'info');
+            }
+        } catch (error) {
+            showAlert('Gagal memuat data prodi untuk edit: ' + error.message, 'danger');
+        }
+    };
+
+    window.deleteProdi = async function(id_prodi) {
+        if (confirm('Yakin ingin menghapus data prodi ini?')) {
+            try {
+                const { error } = await supabaseClient.from('prodi').delete().eq('id_prodi', id_prodi);
+                if (error) throw error;
+                await loadProdi();
+                showAlert('Data prodi berhasil dihapus!', 'success');
+            } catch (error) {
+                showAlert('Gagal menghapus data prodi: ' + error.message, 'danger');
+            }
+        }
+    };
+
+    // Dropdown jurusan untuk form prodi
+    async function loadJurusanDropdown() {
+        const jurusanSelect = document.getElementById('id_jurusan_prodi');
+        jurusanSelect.innerHTML = '<option value="">Pilih Jurusan</option>';
+        try {
+            const { data, error } = await supabaseClient.from('jurusan').select('id_jurusan, nama_jurusan');
+            if (error) throw error;
+            data.forEach(jurusan => {
+                const option = document.createElement('option');
+                option.value = jurusan.id_jurusan;
+                option.textContent = jurusan.nama_jurusan;
+                jurusanSelect.appendChild(option);
+            });
+        } catch (error) {
+            jurusanSelect.innerHTML = '<option value="">Gagal memuat jurusan</option>';
+        }
+    }
 });
