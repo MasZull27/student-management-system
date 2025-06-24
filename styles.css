@@ -97,6 +97,10 @@ body {
     margin-bottom: 1rem;
 }
 
+.feature-card h5, .feature-card p {
+    color: #007bff;
+}
+
 /* Section Title */
 .section-title {
     color: #2c3e50;
@@ -586,7 +590,7 @@ body.dark-mode .feature-card {
 
 body.dark-mode .feature-card h5,
 body.dark-mode .feature-card p {
-    color: #ffffff;
+    color: #6ea8fe;
 }
 
 body.dark-mode .section-title {
